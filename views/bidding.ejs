@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    </head>
+
+<body>
+ <div class="container" >
+
+        <div class="row">
+                <div class="col-sm-8"> 
+                <h2>Hello <%= name %></h2>       
+                </div>
+              </div>
+           
+    
+    <div class="row">
+           
+                <div class="col-sm-2"><button type="button" id="bid" class="btn btn-lg" >Bid</button></div>                
+                <div  class="col-sm-6" id="inputBid">                        
+                                <input type="text"  id="bidamount"  placeholder="Enter amount">                        
+                                <a type="button" id="bidsubmit" class="btn btn-lg" href="#">Submit</a>                         
+                 </div>  
+                 <div class="col-sm-2"><button type="button" id="bidhistory" class="btn btn-lg" >Bid History</button></div>  
+                 <div class="col-sm-2"><a type="button"href="/" class="btn btn-lg" >Logout</a></div>         
+                
+              </div>
+              <hr>
+
+    <table id="table" class="table table-bordered" >
+              <thead>
+                    <tr>
+                        <th>Total</th>
+                        <th>finished</th>
+                        <th>Remain</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                         <td  class="col-sm-2"><%= bid %></td>
+                        <td id="finished" class="col-sm-2"><%= finished %></td> 
+                        <td id="remain" class="col-sm-2"><%= remain %></td> 
+                    </tr>
+                </tbody>
+            </table>
+
+             <div id="history">
+                 <table id="table" class="table table-bordered" >
+                                     <thead>
+                                        <tr>
+                                           <th class="col-sm-4">BID</th>
+                                            <th class="col-sm-4">Amount</th>                                                                                    
+                                           </tr>
+                                     </thead>
+                                     <tbody id="tdata">
+                                    </tbody>
+                                   </table>
+    </div>     
+                      
+    </div>
+
+   
+
+    
+
+<script>
+       
+        $(document).ready(function  () {
+            $("#inputBid").hide();
+            $("#history").hide(); 
+                
+           
+           var  bid=parseInt("<%= bid %>");
+          var count = 0;        
+
+                                                
+         
+           $('#bid').click(function(){
+                      count = parseInt($('#finished').html());  
+                     
+                          if(count<bid){                               
+                                count=count+1;
+                                if(count == bid){
+                                            alert('This is your last bid');
+                                        }
+                          } else{  
+                                        window.location.href= "/";
+                                    }  
+                        $("#inputBid").show();  
+                        $("#history").hide(); 
+                                    
+                                       
+           })
+
+            $('#bidsubmit').click(function(){
+                         
+                             var dt={
+                                      bid_id:count,
+                                       name:'<%= name %>',
+                                       amount:$("#bidamount").val()
+                                    }
+                             $.ajax({
+                                    url:'/bidsave',
+                                    method:'post',
+                                    data:dt,
+                                    success:function(user){
+                                       // console.log(user    
+                                            }
+                                        })
+                                             
+                                        $("#bidamount").val("");  
+                                        $("#inputBid").hide();
+                       
+                                 if(count <= bid){
+                                        document.getElementById("finished").innerHTML=count;
+                                        document.getElementById("remain").innerHTML=bid-count;
+                                    
+                                    }
+                                      
+                            });
+           
+              $('#bidhistory').click(function(){
+                   var dt={  name:'<%= name %>',                                    
+                                    }
+                             $.ajax({
+                                    url:'/bidhistory',
+                                    method:'post',
+                                    data:dt,
+                                    success:function(user){
+                                       // console.log(user)                                                                    
+                                        var html=` `;
+                                        for(var i=0 ; i<user.length; i++){
+                                                html +=` <tr><td class="col-sm-4">${user[i].bid_id}</td>
+                                                         <td class="col-sm-4">${user[i].amount}</td> 
+                                                        </tr>`;
+                                                            }
+                                            $('#tdata').html(html);     
+                                            }                                 
+                                 }) 
+                                  $("#history").show();
+
+               });
+        })
+
+
+
+</script>
+</body>
+</html>
